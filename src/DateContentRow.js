@@ -10,6 +10,7 @@ import EventEndingRow from './EventEndingRow'
 import NoopWrapper from './NoopWrapper'
 import ScrollableWeekWrapper from './ScrollableWeekWrapper'
 import * as DateSlotMetrics from './utils/DateSlotMetrics'
+import { background } from '@storybook/theming'
 
 class DateContentRow extends React.Component {
   constructor(...args) {
@@ -149,8 +150,15 @@ class DateContentRow extends React.Component {
       resizable,
     }
 
+    // console.log({ range })
+
     return (
-      <div className={className} role="rowgroup" ref={this.containerRef}>
+      <div
+        className={className}
+        role="rowgroup"
+        ref={this.containerRef}
+        style={{ border: '1px solid red' }}
+      >
         <BackgroundCells
           localizer={localizer}
           date={date}
@@ -174,14 +182,70 @@ class DateContentRow extends React.Component {
             showAllEvents && 'rbc-row-content-scrollable'
           )}
           role="row"
+          style={{ display: 'flex', height: '100%' }}
         >
-          {renderHeader && (
+          {range.map((date) => {
+            const dayOfWeek = date.getDay() + 1
+
+            return (
+              <div
+                key={date.toDateString()}
+                style={{
+                  border: '1px solid green',
+                  width: 'calc(100% / 7)',
+                }}
+              >
+                {date.toDateString()}
+                <ul
+                  style={{
+                    margin: 0,
+                    padding: 0,
+                    listStyle: 'none',
+                  }}
+                >
+                  {levels.map((segs, idx) => {
+                    const filteredSegs = segs.filter(({ left, right }) => {
+                      return dayOfWeek >= left && dayOfWeek <= right
+                    })
+
+                    return filteredSegs.map(({ event }) => {
+                      // const filteredEvents = event.filter(({ start, end }) => {
+                      //   return dayOfWeek > start && dayOfWeek < end
+                      // })
+
+                      console.log(event)
+
+                      // console.log({
+                      //   dayOfWeek,
+                      //   start: event.start,
+                      //   end: event.end,
+                      // })
+
+                      return (
+                        <li
+                          key={event.title}
+                          style={{ background: 'lightblue' }}
+                        >
+                          {event.title}
+                        </li>
+                      )
+                    })
+                  })}
+                </ul>
+              </div>
+            )
+          })}
+          {/* {renderHeader && (
             <div className="rbc-row " ref={this.headingRowRef}>
               {range.map(this.renderHeadingCell)}
             </div>
           )}
-          <ScrollableWeekComponent>
-            <WeekWrapper isAllDay={isAllDay} {...eventRowProps} rtl={this.props.rtl}>
+<          <ScrollableWeekComponent>
+            <WeekWrapper
+              isAllDay={isAllDay}
+              {...eventRowProps}
+              rtl={this.props.rtl}
+            >
               {levels.map((segs, idx) => (
                 <EventRow key={idx} segments={segs} {...eventRowProps} />
               ))}
@@ -193,7 +257,7 @@ class DateContentRow extends React.Component {
                 />
               )}
             </WeekWrapper>
-          </ScrollableWeekComponent>
+          </ScrollableWeekComponent> */}
         </div>
       </div>
     )
